@@ -1,5 +1,6 @@
 package hack.abtoerner.abtoerner;
 
+import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -21,12 +22,20 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import hack.abtoerner.abtoerner.models.Warning;
+import java.util.List;
+
+import se.walkercrou.places.Place;
 
 public class Home extends AppCompatActivity {
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String locationProvider = LocationManager.GPS_PROVIDER;
+
+    // Acquire a reference to the system Location Manager
+    LocationManager locationManager;
+
+    // Define a listener that responds to location updates
+    LocationListener locationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +81,9 @@ public class Home extends AppCompatActivity {
             }
         }
 
+
+
+
         long[] pattern = {3, 100, 500};
 
         NotificationCompat.Builder mBuilder =
@@ -113,20 +125,26 @@ public class Home extends AppCompatActivity {
             }
         });
 
-//        // Acquire a reference to the system Location Manager
-//        LocationManager locationManager = (LocationManager) this.getSystemService(this.LOCATION_SERVICE);
-//
-//        // Define a listener that responds to location updates
-//        LocationListener locationListener = new GpsLocationListener(this);
-//
-//        // Register the listener with the Location Manager to receive location updates
-//        locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
-//
-//        // The time it takes for your location listener to receive
-//        // the first location fix is often too long for users wait.
-//        // Make use of last known location
-//        Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-//        new Warner(this).execute(lastKnownLocation);
+        // Acquire a reference to the system Location Manager
+        locationManager = (LocationManager) this.getSystemService(this.LOCATION_SERVICE);
+
+        // Define a listener that responds to location updates
+        locationListener = new GpsLocationListener(this);
+
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) this.getSystemService(this.LOCATION_SERVICE);
+
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new GpsLocationListener(this);
+
+        // Register the listener with the Location Manager to receive location updates
+        locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
+
+        // The time it takes for your location listener to receive
+        // the first location fix is often too long for users wait.
+        // Make use of last known location
+        Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+        new Warner(this).execute(lastKnownLocation);
     }
 
 
@@ -154,18 +172,52 @@ public class Home extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void updateWithWarning(Warning warning) {
-        // on first startup, the last known location might be null
-        // thus we just wait until we get a real location/warning
-        if (warning.getPlaces() == null)
+    public void updateWithWarning(List<Place> places) {
+        // Check if one place with a bad rating
+        // is in proximity. If so then raise an
+        // alarm by updating the UI
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
             return;
+        }
 
-        String restaurantName = warning.getPlaces().get(0).getName();
+        Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+        int nrOfLocations = places.size();
+        double[] distanceArray = new double[nrOfLocations];
 
-        TextView editText = (TextView) findViewById(R.id.restaurantName);
-        editText.setText(restaurantName);
+        // Calculate distance for all locations
+        for(int i = 0;i<nrOfLocations;i++) {
+            Location locationPlace = new Location("Place");
+            locationPlace.setLatitude(places.get(i).getLatitude());
+            locationPlace.setLongitude(places.get(i).getLongitude());
+            distanceArray[i] = locationPlace.distanceTo(lastKnownLocation);
 
-        RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
-        ratingBar.setRating((float) warning.getAvgSentiment());
+        }
+
+        // Threshhold for raining an alarm
+        double distanceThreshold = 100;
+        double ratingAlarm = 2;
+
+        for(int i = 0;i<nrOfLocations;i++) {
+            if((distanceArray[i]<distanceThreshold) && (places.get(i).getRating()<ratingAlarm)){
+                // Raise alarm
+                // update name and rating in the UI
+                String restaurantName = places.get(i).getName();
+                TextView restaurantTextView = (TextView) findViewById(R.id.restaurantName);
+                restaurantTextView.setText(restaurantName);
+                RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
+                ratingBar.setRating((float) places.get(i).getRating());
+            }
+
+        }
+
+
     }
 }
