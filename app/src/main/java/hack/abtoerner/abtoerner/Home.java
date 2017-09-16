@@ -1,26 +1,30 @@
 package hack.abtoerner.abtoerner;
 
+<<<<<<< HEAD
 import android.content.Intent;
+=======
+import android.app.Activity;
+>>>>>>> eb987148b8faa77a05054e9bdb83f7fc69487013
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.location.Location;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.RatingBar;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
+import hack.abtoerner.abtoerner.models.Warning;
 
 public class Home extends AppCompatActivity {
 
-    private FusedLocationProviderClient mFusedLocationClient;
-    public static int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private static final String locationProvider = LocationManager.GPS_PROVIDER;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,60 +33,57 @@ public class Home extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        EditText editText = (EditText) findViewById(R.id.restaurantName);
+        editText.setText("Yolo Swaggins \ud83d\ude01");
+        editText.setEnabled(false);
 
+        RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
+        ratingBar.setMax(5);
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        // check location permissions
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
 
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
 
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
 
-            } else if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-
             } else {
+
                 // No explanation needed, we can request the permission.
 
                 ActivityCompat.requestPermissions(this,
-                        new String[]{
-                                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                        },
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
 
-                // MY_PERMISSIONS_REQUEST_LOCATION is an
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
                 // app-defined int constant. The callback method gets the
                 // result of the request.
             }
         }
 
-        mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            // Logic to handle location object
-                        }
-                    }
-                });
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) this.getSystemService(this.LOCATION_SERVICE);
 
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new GpsLocationListener(this);
+
+        // Register the listener with the Location Manager to receive location updates
+        locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
+
+        // The time it takes for your location listener to receive
+        // the first location fix is often too long for users wait.
+        // Make use of last known location
+        Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+        new Warner(this).execute(lastKnownLocation);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -106,5 +107,15 @@ public class Home extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void updateWithWarning(Warning warning) {
+        String restaurantName = warning.getPlaces().get(0).getName();
+
+        EditText editText = (EditText) findViewById(R.id.restaurantName);
+        editText.setText(restaurantName);
+
+        RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
+        ratingBar.setRating((float)warning.getAvgSentiment());
     }
 }
