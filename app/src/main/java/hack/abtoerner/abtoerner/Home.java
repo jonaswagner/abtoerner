@@ -1,13 +1,15 @@
 package hack.abtoerner.abtoerner;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -30,6 +32,30 @@ public class Home extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.afraid)
+                        .setContentTitle("My notification")
+                        .setContentText("Hello World!");
+
+        Intent resultIntent = new Intent(this, Home.class);
+        // Because clicking the notification opens a new ("special") activity, there's
+        // no need to create an artificial back stack.
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        int mNotificationId = 001;
+        // Gets an instance of the NotificationManager service
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        mNotifyMgr.notify(mNotificationId, mBuilder.build());
 
         EditText editText = (EditText) findViewById(R.id.restaurantName);
         editText.setText("Yolo Swaggins \ud83d\ude01");
@@ -113,6 +139,6 @@ public class Home extends AppCompatActivity {
         editText.setText(restaurantName);
 
         RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
-        ratingBar.setRating((float)warning.getAvgSentiment());
+        ratingBar.setRating((float) warning.getAvgSentiment());
     }
 }
