@@ -200,7 +200,7 @@ public class Home extends AppCompatActivity {
 
         // Threshhold for raining an alarm
         double distanceThreshold = 100;
-        double ratingAlarm = 2;
+        double ratingAlarm = 5;
 
         for(int i = 0;i<nrOfLocations;i++) {
             if((distanceArray[i]<distanceThreshold) && (places.get(i).getRating()<ratingAlarm)){
@@ -215,6 +215,12 @@ public class Home extends AppCompatActivity {
 
         }
 
+        new TextAnalytics(this).execute(places.get(0).getPlaceId());
+    }
 
+    public void updateWithBuzzWords(List<String> buzzWords) {
+        for (String element : buzzWords) {
+            System.out.println(element);
+        }
     }
 }

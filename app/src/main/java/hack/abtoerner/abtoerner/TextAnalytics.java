@@ -1,40 +1,35 @@
 package hack.abtoerner.abtoerner;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 
 import java.io.*;
+import java.lang.ref.WeakReference;
 import java.net.*;
 import java.util.*;
 import javax.net.ssl.HttpsURLConnection;
 
-/*
- * Gson: https://github.com/google/gson
- * Maven info:
- *     groupId: com.google.code.gson
- *     artifactId: gson
- *     version: 2.8.1
- *
- * Once you have compiled or downloaded gson-2.8.1.jar, assuming you have placed it in the
- * same folder as this file (GetKeyPhrases.java), you can compile and run this program at
- * the command line as follows.
- *
- * javac GetKeyPhrases.java -classpath .;gson-2.8.1.jar -encoding UTF-8
- * java -cp .;gson-2.8.1.jar GetKeyPhrases
- */
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-public class TextAnalytics extends AsyncTask<List<String>, Void, List<String>> {
+import se.walkercrou.places.GooglePlaces;
+import se.walkercrou.places.Place;
+import se.walkercrou.places.Review;
+
+
+public class TextAnalytics extends AsyncTask<String, Void, List<String>> {
 
 // ***********************************************
 // *** Update or verify the following values. ***
 // **********************************************
 
     // Replace the accessKey string value with your valid access key.
-    static String accessKey = "b1609a735f13404dbf3b0c11decb59f4";
+    static String accessKey = "ee3a7a8d27f14d3daed8dc0d8028e37b";
 
 // Replace or verify the region.
 
@@ -44,9 +39,19 @@ public class TextAnalytics extends AsyncTask<List<String>, Void, List<String>> {
 
     // NOTE: Free trial access keys are generated in the westcentralus region, so if you are using
 // a free trial access key, you should not need to change this region.
-    static String host = "https://westus.api.cognitive.microsoft.com";
+//    static String host = "https://westus.api.cognitive.microsoft.com";
+    static String host = "https://westcentralus.api.cognitive.microsoft.com/text/analytic";
 
-    static String path = "/text/analytics/v2.0/keyPhrases";
+//    static String path = "/keyPhrases";
+    static String path = "/v2.0/keyPhrases";
+
+    private GooglePlaces placesClient = new GooglePlaces("AIzaSyAwCJUpWwAHBhT7jPSP7X14Cy2c91Fye50");
+
+    WeakReference<Activity> activity;
+
+    public TextAnalytics(Activity activity) {
+        this.activity = new WeakReference<Activity>(activity);
+    }
 
     public static String GetKeyPhrases (Documents documents) throws Exception {
         String text = new Gson().toJson(documents);
@@ -55,7 +60,7 @@ public class TextAnalytics extends AsyncTask<List<String>, Void, List<String>> {
         URL url = new URL(host+path);
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "text/json");
+        connection.setRequestProperty("Content-Type", "application/json");
         connection.setRequestProperty("Ocp-Apim-Subscription-Key", accessKey);
         connection.setDoOutput(true);
 
@@ -83,23 +88,38 @@ public class TextAnalytics extends AsyncTask<List<String>, Void, List<String>> {
         return gson.toJson(json);
     }
 
-    public static void main (String[] args) {
-        try {
-            Documents documents = new Documents ();
-            documents.add ("1", "en", "I really enjoy the new XBox One S. It has a clean look, it has 4K/HDR resolution and it is affordable.");
-            documents.add ("2", "es", "Si usted quiere comunicarse con Carlos, usted debe de llamarlo a su telefono movil. Carlos es muy responsable, pero necesita recibir una notificacion si hay algun problema.");
-            documents.add ("3", "en", "The Grand Hotel is a new hotel in the center of Seattle. It earned 5 stars in my review, and has the classiest decor I've ever seen.");
+    @Override
+    protected List<String> doInBackground(String... strings) {
+        String placeId = strings[0];
+        Documents documents = new Documents ();
 
+        //TODO jwa fake some warning reviews
+        Place place = placesClient.getPlaceById("ChIJWf_iMqigmkcRRJAVYGb7Hwo");
+        int i = 0;
+        for (Review review : place.getReviews()) {
+            documents.add("" +i, review.getLanguage(), review.getText());
+            i++;
+        }
+
+        List<String> buzzWords = new ArrayList<String>();
+        try {
             String response = GetKeyPhrases (documents);
-            System.out.println (prettify (response));
+            JSONArray jsonArray = new JSONArray(prettify(response));
+
+            for(int index = 0;index < jsonArray.length(); index++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(index);
+                buzzWords.add((String) jsonObject.get("keyPhrases"));
+            }
+
         }
         catch (Exception e) {
             System.out.println (e);
         }
+        return buzzWords;
     }
 
-    @Override
-    protected List<String> doInBackground(List<String>... lists) {
-        return null;
+    protected void onPostExecute(List<String> buzzWords) {
+        Home homeActivity = (Home) activity.get();
+        homeActivity.updateWithBuzzWords(buzzWords);
     }
 }
