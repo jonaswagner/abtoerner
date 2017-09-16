@@ -1,5 +1,6 @@
 package hack.abtoerner.abtoerner;
 
+import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -26,6 +27,12 @@ public class Home extends AppCompatActivity {
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String locationProvider = LocationManager.GPS_PROVIDER;
+
+    // Acquire a reference to the system Location Manager
+    LocationManager locationManager;
+
+    // Define a listener that responds to location updates
+    LocationListener locationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,10 +101,10 @@ public class Home extends AppCompatActivity {
         }
 
         // Acquire a reference to the system Location Manager
-        LocationManager locationManager = (LocationManager) this.getSystemService(this.LOCATION_SERVICE);
+        locationManager = (LocationManager) this.getSystemService(this.LOCATION_SERVICE);
 
         // Define a listener that responds to location updates
-        LocationListener locationListener = new GpsLocationListener(this);
+        locationListener = new GpsLocationListener(this);
 
         // Register the listener with the Location Manager to receive location updates
         locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
@@ -135,18 +142,51 @@ public class Home extends AppCompatActivity {
     }
 
     public void updateWithWarning(List<Place> places) {
-        // get the nearest place for now,
-        // this might be improved to get several places
-        // with the same/similar distance
-        Place place = places.get(0);
+        // Check if one place with a bad rating
+        // is in proximity. If so then raise an
+        // alarm by updating the UI
 
-        // update name and rating in the UI
-        String restaurantName = place.getName();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
 
-        TextView editText = (TextView) findViewById(R.id.restaurantName);
-        editText.setText(restaurantName);
+        Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+        int nrOfLocations = places.size();
+        double[] distanceArray = new double[nrOfLocations];
 
-        RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
-        ratingBar.setRating((float) place.getRating());
+        // Calculate distance for all locations
+        for(int i = 0;i<nrOfLocations;i++) {
+            Location locationPlace = new Location("Place");
+            locationPlace.setLatitude(places.get(i).getLatitude());
+            locationPlace.setLongitude(places.get(i).getLongitude());
+            distanceArray[i] = locationPlace.distanceTo(lastKnownLocation);
+
+        }
+
+        // Threshhold for raining an alarm
+        double distanceThreshold = 100;
+        double ratingAlarm = 2;
+
+        for(int i = 0;i<nrOfLocations;i++) {
+            if((distanceArray[i]<distanceThreshold) && (places.get(i).getRating()<ratingAlarm)){
+                // Raise alarm
+                // update name and rating in the UI
+                String restaurantName = places.get(i).getName();
+                TextView restaurantTextView = (TextView) findViewById(R.id.restaurantName);
+                restaurantTextView.setText(restaurantName);
+                RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
+                ratingBar.setRating((float) places.get(i).getRating());
+            }
+
+        }
+
+
     }
 }
