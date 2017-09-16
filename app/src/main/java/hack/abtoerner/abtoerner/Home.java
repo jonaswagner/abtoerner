@@ -1,10 +1,7 @@
 package hack.abtoerner.abtoerner;
 
-<<<<<<< HEAD
 import android.content.Intent;
-=======
 import android.app.Activity;
->>>>>>> eb987148b8faa77a05054e9bdb83f7fc69487013
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
