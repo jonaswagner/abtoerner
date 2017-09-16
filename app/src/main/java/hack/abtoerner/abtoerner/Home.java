@@ -33,7 +33,6 @@ public class Home extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-<<<<<<< HEAD
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.afraid)
