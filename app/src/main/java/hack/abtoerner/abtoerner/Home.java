@@ -11,6 +11,7 @@ import android.location.Location;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -36,6 +37,11 @@ public class Home extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        EditText editText = (EditText)findViewById(R.id.restaurantName);
+        editText.setText("Yolo Swaggins \ud83d\ude01");
+        editText.setEnabled(false);
+
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
