@@ -11,12 +11,10 @@ import javax.net.ssl.HttpsURLConnection;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -65,8 +63,6 @@ public class TextAnalytics extends AsyncTask<String, Void, List<String>> {
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setRequestProperty("Ocp-Apim-Subscription-Key", accessKey);
-//        connection.setDoOutput(true);
-
 
         DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
 
@@ -118,13 +114,21 @@ public class TextAnalytics extends AsyncTask<String, Void, List<String>> {
         List<String> buzzWords = new ArrayList<String>();
         try {
             String response = GetKeyPhrases (documents);
-            JSONArray jsonArray = new JSONArray(prettify(response));
+//            JSONArray jsonArray = new JSONArray(prettify(response));
+            JsonParser parser = new JsonParser();
+            JsonObject jsonObject = parser.parse(response).getAsJsonObject();
 
-            for(int index = 0;index < jsonArray.length(); index++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(index);
-                buzzWords.add((String) jsonObject.getString("keyPhrases"));
+            JsonArray jsonArray = jsonObject.get("documents").getAsJsonArray();
+
+            for (int j = 0; j<jsonArray.size();j++) {
+                JsonArray phrases = jsonArray.get(j).getAsJsonObject().get("keyPhrases").getAsJsonArray();
+                StringBuilder builder = new StringBuilder();
+                for (int k = 0; k < phrases.size(); k++) {
+                    builder.append(phrases.get(k).getAsString() + ", ");
+                }
+                String raw = builder.toString();
+                buzzWords.add(raw.substring(0, raw.length()-2));
             }
-
         }
         catch (Exception e) {
             System.out.println (e);
