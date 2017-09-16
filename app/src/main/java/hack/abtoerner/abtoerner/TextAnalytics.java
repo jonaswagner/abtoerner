@@ -94,6 +94,7 @@ public class TextAnalytics extends AsyncTask<String, Void, List<String>> {
         Documents documents = new Documents ();
 
         //TODO jwa fake some warning reviews
+        //TODO jwa fake some warning reviews
         Place place = placesClient.getPlaceById("ChIJWf_iMqigmkcRRJAVYGb7Hwo");
         int i = 0;
         for (Review review : place.getReviews()) {

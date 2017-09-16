@@ -109,7 +109,7 @@ public class Home extends AppCompatActivity {
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // Builds the notification and issues it.
-        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+//        mNotifyMgr.notify(mNotificationId, mBuilder.build());
 
         Switch simpleSwitch = (Switch) findViewById(R.id.switch1);
         simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -186,6 +186,12 @@ public class Home extends AppCompatActivity {
         }
 
         Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+
+        if (lastKnownLocation == null) {
+            lastKnownLocation = new Location("null");
+            lastKnownLocation.setLongitude(8.539203199999974d);
+            lastKnownLocation.setLatitude(47.3781899d);
+        }
         int nrOfLocations = places.size();
         double[] distanceArray = new double[nrOfLocations];
 

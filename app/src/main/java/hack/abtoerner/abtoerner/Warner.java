@@ -32,8 +32,12 @@ public class Warner extends AsyncTask<Location, Void, List<Place>> {
     private List<Place> getWarning(Location location) {
         // on first startup, the last known location might be null
         // thus we just wait until we get a real location
-        if (location == null)
-            return new ArrayList<Place>();
+        if (location == null) {
+            //if null set location of zurich mainstation
+            location = new Location("null");
+            location.setLongitude(8.539203199999974d);
+            location.setLatitude(47.3781899d);
+        }
 
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
