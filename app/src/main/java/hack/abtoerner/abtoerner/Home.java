@@ -107,6 +107,11 @@ public class Home extends AppCompatActivity {
     }
 
     public void updateWithWarning(Warning warning) {
+        // on first startup, the last known location might be null
+        // thus we just wait until we get a real location/warning
+        if (warning == null)
+            return;
+
         String restaurantName = warning.getPlaces().get(0).getName();
 
         EditText editText = (EditText) findViewById(R.id.restaurantName);
