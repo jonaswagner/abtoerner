@@ -1,5 +1,6 @@
 package hack.abtoerner.abtoerner;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -99,6 +100,8 @@ public class Home extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent myIntent = new Intent(this, Settings.class);
+            startActivity(myIntent);
             return true;
         }
 
