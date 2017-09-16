@@ -15,6 +15,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.List;
+
+import se.walkercrou.places.GooglePlaces;
+import se.walkercrou.places.Place;
+
 public class Home extends AppCompatActivity {
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
@@ -70,7 +75,9 @@ public class Home extends AppCompatActivity {
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 // Called when a new location is found by the network location provider.
-                makeUseOfNewLocation(location);
+                new Warner().execute(location);
+
+                // todo: take action based on average rating sentiment
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -90,13 +97,10 @@ public class Home extends AppCompatActivity {
         // the first location fix is often too long for users wait.
         // Make use of last known location
         Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-        makeUseOfNewLocation(lastKnownLocation);
+        new Warner().execute(lastKnownLocation);
     }
 
-    private void makeUseOfNewLocation(Location location) {
-        // todo: google places api call
 
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
