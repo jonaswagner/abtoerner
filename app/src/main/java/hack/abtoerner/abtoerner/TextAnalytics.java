@@ -14,6 +14,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -40,7 +43,7 @@ public class TextAnalytics extends AsyncTask<String, Void, List<String>> {
     // NOTE: Free trial access keys are generated in the westcentralus region, so if you are using
 // a free trial access key, you should not need to change this region.
 //    static String host = "https://westus.api.cognitive.microsoft.com";
-    static String host = "https://westcentralus.api.cognitive.microsoft.com/text/analytic";
+    static String host = "https://westcentralus.api.cognitive.microsoft.com/text/analytics";
 
 //    static String path = "/keyPhrases";
     static String path = "/v2.0/keyPhrases";
@@ -53,7 +56,7 @@ public class TextAnalytics extends AsyncTask<String, Void, List<String>> {
         this.activity = new WeakReference<Activity>(activity);
     }
 
-    public static String GetKeyPhrases (Documents documents) throws Exception {
+    public String GetKeyPhrases (Documents documents) throws Exception {
         String text = new Gson().toJson(documents);
         byte[] encoded_text = text.getBytes("UTF-8");
 
@@ -62,16 +65,27 @@ public class TextAnalytics extends AsyncTask<String, Void, List<String>> {
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setRequestProperty("Ocp-Apim-Subscription-Key", accessKey);
-        connection.setDoOutput(true);
+//        connection.setDoOutput(true);
+
 
         DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+
         wr.write(encoded_text, 0, encoded_text.length);
         wr.flush();
         wr.close();
 
+        InputStream input;
+        int responseCode = connection.getResponseCode(); //can call this instead of con.connect()
+        if (responseCode >= 400 && responseCode <= 499) {
+            throw new Exception("Bad authentication status: " + responseCode); //provide a more meaningful exception message
+        }
+        else {
+            input = connection.getInputStream();
+        }
+
         StringBuilder response = new StringBuilder ();
         BufferedReader in = new BufferedReader(
-                new InputStreamReader(connection.getInputStream()));
+                new InputStreamReader(input));
         String line;
         while ((line = in.readLine()) != null) {
             response.append(line);
@@ -94,7 +108,6 @@ public class TextAnalytics extends AsyncTask<String, Void, List<String>> {
         Documents documents = new Documents ();
 
         //TODO jwa fake some warning reviews
-        //TODO jwa fake some warning reviews
         Place place = placesClient.getPlaceById("ChIJWf_iMqigmkcRRJAVYGb7Hwo");
         int i = 0;
         for (Review review : place.getReviews()) {
@@ -109,7 +122,7 @@ public class TextAnalytics extends AsyncTask<String, Void, List<String>> {
 
             for(int index = 0;index < jsonArray.length(); index++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(index);
-                buzzWords.add((String) jsonObject.get("keyPhrases"));
+                buzzWords.add((String) jsonObject.getString("keyPhrases"));
             }
 
         }
