@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.RatingBar;
+import android.widget.TextView;
 
 import hack.abtoerner.abtoerner.models.Warning;
 
@@ -31,7 +32,7 @@ public class Home extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-        EditText editText = (EditText) findViewById(R.id.restaurantName);
+        TextView editText = (TextView) findViewById(R.id.restaurantName);
         editText.setText("Yolo Swaggins \ud83d\ude01");
         editText.setEnabled(false);
 
@@ -109,12 +110,12 @@ public class Home extends AppCompatActivity {
     public void updateWithWarning(Warning warning) {
         // on first startup, the last known location might be null
         // thus we just wait until we get a real location/warning
-        if (warning == null)
+        if (warning.getPlaces() == null)
             return;
 
         String restaurantName = warning.getPlaces().get(0).getName();
 
-        EditText editText = (EditText) findViewById(R.id.restaurantName);
+        TextView editText = (TextView) findViewById(R.id.restaurantName);
         editText.setText(restaurantName);
 
         RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
