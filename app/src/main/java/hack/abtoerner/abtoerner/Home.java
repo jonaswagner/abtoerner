@@ -1,12 +1,11 @@
 package hack.abtoerner.abtoerner;
 
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +13,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.view.View;
+import android.widget.RatingBar;
+
+import hack.abtoerner.abtoerner.models.Warning;
 
 public class Home extends AppCompatActivity {
 
@@ -28,20 +29,13 @@ public class Home extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
-        EditText editText = (EditText)findViewById(R.id.restaurantName);
+        EditText editText = (EditText) findViewById(R.id.restaurantName);
         editText.setText("Yolo Swaggins \ud83d\ude01");
         editText.setEnabled(false);
 
-
+        RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
+        ratingBar.setMax(5);
 
         // check location permissions
         if (ContextCompat.checkSelfPermission(this,
@@ -74,23 +68,7 @@ public class Home extends AppCompatActivity {
         LocationManager locationManager = (LocationManager) this.getSystemService(this.LOCATION_SERVICE);
 
         // Define a listener that responds to location updates
-        LocationListener locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                // Called when a new location is found by the network location provider.
-                new Warner().execute(location);
-
-                // todo: take action based on average rating sentiment
-            }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
-
-            public void onProviderEnabled(String provider) {
-            }
-
-            public void onProviderDisabled(String provider) {
-            }
-        };
+        LocationListener locationListener = new GpsLocationListener(this);
 
         // Register the listener with the Location Manager to receive location updates
         locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
@@ -99,9 +77,8 @@ public class Home extends AppCompatActivity {
         // the first location fix is often too long for users wait.
         // Make use of last known location
         Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-        new Warner().execute(lastKnownLocation);
+        new Warner(this).execute(lastKnownLocation);
     }
-
 
 
     @Override
@@ -124,5 +101,15 @@ public class Home extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void updateWithWarning(Warning warning) {
+        String restaurantName = warning.getPlaces().get(0).getName();
+
+        EditText editText = (EditText) findViewById(R.id.restaurantName);
+        editText.setText(restaurantName);
+
+        RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
+        ratingBar.setRating((float)warning.getAvgSentiment());
     }
 }

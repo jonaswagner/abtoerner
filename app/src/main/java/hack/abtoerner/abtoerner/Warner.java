@@ -1,27 +1,36 @@
 package hack.abtoerner.abtoerner;
 
+import android.app.Activity;
 import android.location.Location;
 import android.os.AsyncTask;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
+import hack.abtoerner.abtoerner.models.Warning;
 import se.walkercrou.places.GooglePlaces;
 import se.walkercrou.places.Place;
 
-public class Warner extends AsyncTask<Location, Void, Double> {
+public class Warner extends AsyncTask<Location, Void, Warning> {
+
+    // reference to the activity that called the async task
+    WeakReference<Activity> activity;
 
     public static final int placesRadiusInMeters = 500;
     private GooglePlaces placesClient = new GooglePlaces("AIzaSyAwCJUpWwAHBhT7jPSP7X14Cy2c91Fye50");
 
-    @Override
-    protected Double doInBackground(Location... location) {
-
-        return getAvgRatingSentiment(location[0]);
+    public Warner(Activity activity) {
+        this.activity = new WeakReference<Activity>(activity);
     }
 
-    private double getAvgRatingSentiment(Location location) {
+    @Override
+    protected Warning doInBackground(Location... location) {
+        return getWarning(location[0]);
+    }
+
+    private Warning getWarning(Location location) {
         if (location == null)
-            return 0;
+            return new Warning(null, 0);
 
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
@@ -47,7 +56,13 @@ public class Warner extends AsyncTask<Location, Void, Double> {
         // get average rating sentiment
         double sentiment = ratingSum / numberOfRatings;
 
-        return sentiment;
+        Warning warning = new Warning(places, sentiment);
+        return warning;
+    }
+
+    protected void onPostExecute(Warning warning) {
+        Home homeActivity = (Home)activity.get();
+        homeActivity.updateWithWarning(warning);
     }
 
 }
