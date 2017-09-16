@@ -1,5 +1,7 @@
 package hack.abtoerner.abtoerner;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -7,13 +9,14 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.RatingBar;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -32,7 +35,31 @@ public class Home extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-        EditText editText = (EditText) findViewById(R.id.restaurantName);
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.afraid)
+                        .setContentTitle("My notification")
+                        .setContentText("Hello World!");
+
+        Intent resultIntent = new Intent(this, Home.class);
+        // Because clicking the notification opens a new ("special") activity, there's
+        // no need to create an artificial back stack.
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        int mNotificationId = 001;
+        // Gets an instance of the NotificationManager service
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+
+        TextView editText = (TextView) findViewById(R.id.restaurantName);
         editText.setText("Yolo Swaggins \ud83d\ude01");
         editText.setEnabled(false);
 
@@ -116,7 +143,7 @@ public class Home extends AppCompatActivity {
         // update name and rating in the UI
         String restaurantName = place.getName();
 
-        EditText editText = (EditText) findViewById(R.id.restaurantName);
+        TextView editText = (TextView) findViewById(R.id.restaurantName);
         editText.setText(restaurantName);
 
         RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
