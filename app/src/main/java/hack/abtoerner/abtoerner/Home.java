@@ -81,6 +81,9 @@ public class Home extends AppCompatActivity {
             }
         }
 
+
+
+
         long[] pattern = {0, 1000, 500};
 
         NotificationCompat.Builder mBuilder =

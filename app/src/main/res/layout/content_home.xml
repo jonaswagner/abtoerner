@@ -48,8 +48,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
+                android:gravity="center"
                 android:inputType="textPersonName"
-                android:text="Name" />
+                android:text="Name"
+                android:textColor="#000000"
+                android:textSize="25sp" />
 
             <ImageView
                 android:id="@+id/attention"
@@ -65,12 +68,6 @@
                 android:layout_margin="10dp"
                 android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/imageView4"
-                    android:layout_width="52dp"
-                    android:layout_height="match_parent"
-                    app:srcCompat="@drawable/scared" />
-
                 <TextView
                     android:id="@+id/reasonField"
                     android:layout_width="wrap_content"
@@ -78,7 +75,7 @@
                     android:layout_weight="1"
                     android:ems="10"
                     android:inputType="textPersonName"
-                    android:text="Name :fearful:" />
+                    android:text="\ud83d\ude21 Alter isch zum kotzen hier!!!" />
             </LinearLayout>
 
             <LinearLayout
@@ -89,16 +86,18 @@
 
                 <RatingBar
                     android:id="@+id/ratingBar3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:numStars="5"
+                    android:isIndicator="true" />
 
                 <TextView
                     android:id="@+id/editText4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_width="111dp"
+                    android:layout_height="match_parent"
                     android:ems="10"
+                    android:gravity="center"
                     android:inputType="textPersonName"
                     android:text="Name" />
 

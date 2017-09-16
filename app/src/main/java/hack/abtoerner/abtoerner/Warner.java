@@ -11,6 +11,7 @@ import java.util.List;
 import se.walkercrou.places.GooglePlaces;
 import se.walkercrou.places.Param;
 import se.walkercrou.places.Place;
+import se.walkercrou.places.Review;
 
 public class Warner extends AsyncTask<Location, Void, List<Place>> {
 
@@ -46,7 +47,10 @@ public class Warner extends AsyncTask<Location, Void, List<Place>> {
         List<Place> places = placesClient.getNearbyPlacesRankedByDistance(
                 latitude,
                 longitude,
-                Param.name("opennow").value(true));
+                Param.name("opennow").value(true),Param.name("types").value("restaurant"));
+
+        Place places2 = placesClient.getPlaceById("ChIJWf_iMqigmkcRRJAVYGb7Hwo");
+        List<Review> review = places2.getReviews();
 
         return places;
     }
