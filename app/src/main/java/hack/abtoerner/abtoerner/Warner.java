@@ -5,13 +5,14 @@ import android.location.Location;
 import android.os.AsyncTask;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
-import hack.abtoerner.abtoerner.models.Warning;
 import se.walkercrou.places.GooglePlaces;
+import se.walkercrou.places.Param;
 import se.walkercrou.places.Place;
 
-public class Warner extends AsyncTask<Location, Void, Warning> {
+public class Warner extends AsyncTask<Location, Void, List<Place>> {
 
     // reference to the activity that called the async task
     WeakReference<Activity> activity;
@@ -24,45 +25,31 @@ public class Warner extends AsyncTask<Location, Void, Warning> {
     }
 
     @Override
-    protected Warning doInBackground(Location... location) {
+    protected List<Place> doInBackground(Location... location) {
         return getWarning(location[0]);
     }
 
-    private Warning getWarning(Location location) {
+    private List<Place> getWarning(Location location) {
+        // on first startup, the last known location might be null
+        // thus we just wait until we get a real location
         if (location == null)
-            return new Warning(null, 0);
+            return new ArrayList<Place>();
 
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
 
-        // get nearby places
-        List<Place> places = placesClient.getNearbyPlaces(
+        // get nearest open place
+        List<Place> places = placesClient.getNearbyPlacesRankedByDistance(
                 latitude,
                 longitude,
-                placesRadiusInMeters,
-                20);
+                Param.name("opennow").value(true));
 
-        // sum all ratings
-        double ratingSum = 0;
-        int numberOfRatings = 0;
-        while (numberOfRatings < places.size()) {
-            Place place = places.get(numberOfRatings);
-            double rating = place.getRating();
-
-            ratingSum += rating;
-            numberOfRatings++;
-        }
-
-        // get average rating sentiment
-        double sentiment = ratingSum / numberOfRatings;
-
-        Warning warning = new Warning(places, sentiment);
-        return warning;
+        return places;
     }
 
-    protected void onPostExecute(Warning warning) {
-        Home homeActivity = (Home)activity.get();
-        homeActivity.updateWithWarning(warning);
+    protected void onPostExecute(List<Place> places) {
+        Home homeActivity = (Home) activity.get();
+        homeActivity.updateWithWarning(places);
     }
 
 }

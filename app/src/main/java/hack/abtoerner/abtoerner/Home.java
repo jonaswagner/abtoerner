@@ -1,7 +1,6 @@
 package hack.abtoerner.abtoerner;
 
 import android.content.Intent;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -16,7 +15,9 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.RatingBar;
 
-import hack.abtoerner.abtoerner.models.Warning;
+import java.util.List;
+
+import se.walkercrou.places.Place;
 
 public class Home extends AppCompatActivity {
 
@@ -106,18 +107,19 @@ public class Home extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void updateWithWarning(Warning warning) {
-        // on first startup, the last known location might be null
-        // thus we just wait until we get a real location/warning
-        if (warning == null)
-            return;
+    public void updateWithWarning(List<Place> places) {
+        // get the nearest place for now,
+        // this might be improved to get several places
+        // with the same/similar distance
+        Place place = places.get(0);
 
-        String restaurantName = warning.getPlaces().get(0).getName();
+        // update name and rating in the UI
+        String restaurantName = place.getName();
 
         EditText editText = (EditText) findViewById(R.id.restaurantName);
         editText.setText(restaurantName);
 
         RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
-        ratingBar.setRating((float)warning.getAvgSentiment());
+        ratingBar.setRating((float) place.getRating());
     }
 }
