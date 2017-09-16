@@ -15,8 +15,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
 import android.widget.RatingBar;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import hack.abtoerner.abtoerner.models.Warning;
 
@@ -33,29 +36,7 @@ public class Home extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.afraid)
-                        .setContentTitle("My notification")
-                        .setContentText("Hello World!");
 
-        Intent resultIntent = new Intent(this, Home.class);
-        // Because clicking the notification opens a new ("special") activity, there's
-        // no need to create an artificial back stack.
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-
-        int mNotificationId = 001;
-        // Gets an instance of the NotificationManager service
-        NotificationManager mNotifyMgr =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // Builds the notification and issues it.
-        mNotifyMgr.notify(mNotificationId, mBuilder.build());
 
         TextView editText = (TextView) findViewById(R.id.restaurantName);
         editText.setText("Yolo Swaggins \ud83d\ude01");
@@ -91,20 +72,61 @@ public class Home extends AppCompatActivity {
             }
         }
 
-        // Acquire a reference to the system Location Manager
-        LocationManager locationManager = (LocationManager) this.getSystemService(this.LOCATION_SERVICE);
+        long[] pattern = {3, 100, 500};
 
-        // Define a listener that responds to location updates
-        LocationListener locationListener = new GpsLocationListener(this);
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.warnicon)
+                        .setContentTitle("My notification")
+                        .setContentText("Hello World!")
+                        .setVibrate(pattern)
+                        .setChannel("thisIsAChannelID");
 
-        // Register the listener with the Location Manager to receive location updates
-        locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
+        Intent resultIntent = new Intent(this, Settings.class);
+        // Because clicking the notification opens a new ("special") activity, there's
+        // no need to create an artificial back stack.
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        this,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
 
-        // The time it takes for your location listener to receive
-        // the first location fix is often too long for users wait.
-        // Make use of last known location
-        Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-        new Warner(this).execute(lastKnownLocation);
+        mBuilder.setContentIntent(resultPendingIntent);
+
+        int mNotificationId = 003;
+        // Gets an instance of the NotificationManager service
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+
+        Switch simpleSwitch = (Switch) findViewById(R.id.switch1);
+        simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    System.out.println("Toggle switch enabled!");
+                } else {
+                    System.out.println("Toggle switch disabled!");
+                }
+            }
+        });
+
+//        // Acquire a reference to the system Location Manager
+//        LocationManager locationManager = (LocationManager) this.getSystemService(this.LOCATION_SERVICE);
+//
+//        // Define a listener that responds to location updates
+//        LocationListener locationListener = new GpsLocationListener(this);
+//
+//        // Register the listener with the Location Manager to receive location updates
+//        locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
+//
+//        // The time it takes for your location listener to receive
+//        // the first location fix is often too long for users wait.
+//        // Make use of last known location
+//        Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
+//        new Warner(this).execute(lastKnownLocation);
     }
 
 
