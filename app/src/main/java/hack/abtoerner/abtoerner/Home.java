@@ -228,8 +228,17 @@ public class Home extends AppCompatActivity {
     }
 
     public void updateWithBuzzWords(List<String> buzzWords) {
+
+        StringBuilder builder = new StringBuilder();
+
+        int i = 1;
         for (String element : buzzWords) {
-            System.out.println(element);
+            builder.append("Review " + i + ": \t");
+            builder.append(element);
+            builder.append(" " + "\n");
+            i++;
         }
+
+        String reviews = builder.toString();
     }
 }
