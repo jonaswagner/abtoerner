@@ -16,12 +16,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import java.util.List;
 
@@ -50,14 +47,6 @@ public class Home extends AppCompatActivity {
 
         setUIVisibilityToNoWarning();
 
-
-/*        TextView editText = (TextView) findViewById(R.id.restaurantName);
-        editText.setText("Yolo Swaggins \ud83d\ude01");
-        editText.setEnabled(false);*/
-
-/*        RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
-        ratingBar.setMax(5);*/
-
         // check location permissions
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -84,50 +73,6 @@ public class Home extends AppCompatActivity {
                 // result of the request.
             }
         }
-
-
-
-
- /*       long[] pattern = {0, 1000, 500};
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.warnicon)
-                        .setContentTitle("My notification")
-                        .setContentText("Hello World!")
-                        .setVibrate(pattern)
-                        .setChannel("thisIsAChannelID");
-
-        Intent resultIntent = new Intent(this, Settings.class);
-        // Because clicking the notification opens a new ("special") activity, there's
-        // no need to create an artificial back stack.
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        this,
-                        0,
-                        resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-
-        mBuilder.setContentIntent(resultPendingIntent);
-
-        int mNotificationId = 003;
-        // Gets an instance of the NotificationManager service
-        NotificationManager mNotifyMgr =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // Builds the notification and issues it.
-//        mNotifyMgr.notify(mNotificationId, mBuilder.build());*/
-
-     /*   Switch simpleSwitch = (Switch) findViewById(R.id.switch1);
-        simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    System.out.println("Toggle switch enabled!");
-                } else {
-                    System.out.println("Toggle switch disabled!");
-                }
-            }
-        });*/
 
         // Acquire a reference to the system Location Manager
         locationManager = (LocationManager) this.getSystemService(this.LOCATION_SERVICE);
@@ -279,7 +224,6 @@ public class Home extends AppCompatActivity {
             locationPlace.setLatitude(places.get(i).getLatitude());
             locationPlace.setLongitude(places.get(i).getLongitude());
             distanceArray[i] = locationPlace.distanceTo(lastKnownLocation);
-
         }
 
         // Threshhold for raining an alarm
@@ -311,7 +255,12 @@ public class Home extends AppCompatActivity {
             setUIVisibilityToNoWarning();
         }
 
-        new TextAnalytics(this).execute(places.get(0).getPlaceId());
+        if (Settings.isDetailsEnabled) {
+            new TextAnalytics(this).execute(places.get(0).getPlaceId());
+        } else {
+            TextView textView = (TextView) findViewById(R.id.reasonField);
+            textView.setText("");
+        }
     }
 
     public void updateWithBuzzWords(List<String> buzzWords) {
