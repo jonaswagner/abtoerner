@@ -92,6 +92,7 @@
                     android:layout_alignParentBottom="true"
                     android:layout_centerVertical="true"
                     android:layout_weight="0.1"
+                    android:alpha="0"
                     android:gravity="bottom|center"
                     android:text="10%" />
 
