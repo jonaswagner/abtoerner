@@ -218,8 +218,8 @@ public class Home extends AppCompatActivity {
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(this)
                             .setSmallIcon(R.drawable.warnicon)
-                            .setContentTitle("My notification")
-                            .setContentText("Hello World!")
+                            .setContentTitle("Warning")
+                            .setContentText(place.getName()+" looks suspicious ("+ place.getRating()+")")
                             .setVibrate(pattern)
                             .setChannel("thisIsAChannelID");
 
@@ -327,5 +327,7 @@ public class Home extends AppCompatActivity {
         }
 
         String reviews = builder.toString();
+        TextView textView = (TextView) findViewById(R.id.reasonField);
+        textView.setText(reviews);
     }
 }
