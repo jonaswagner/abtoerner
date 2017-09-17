@@ -14,12 +14,15 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.text.Spannable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import se.walkercrou.places.Place;
@@ -240,7 +243,7 @@ public class Home extends AppCompatActivity {
             // update name and rating in the UI
             String restaurantName = places.get(i).getName();
             TextView restaurantTextView = (TextView) findViewById(R.id.restaurantName);
-            restaurantTextView.setText(restaurantName);
+            restaurantTextView.setText(Html.fromHtml("<h3>" + restaurantName + "</h3>"));
             RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
             ratingBar.setRating((float) places.get(i).getRating());
             TextView textView = (TextView) findViewById(R.id.editText4);
@@ -264,19 +267,17 @@ public class Home extends AppCompatActivity {
     }
 
     public void updateWithBuzzWords(List<String> buzzWords) {
-
         StringBuilder builder = new StringBuilder();
-
         int i = 1;
         for (String element : buzzWords) {
-            builder.append("Review " + i + ": \t");
+            builder.append("<h3> Review " + i + ": </h3> </br>");
             builder.append(element);
-            builder.append(" " + "\n");
+            builder.append(" " + "</br> </br>");
             i++;
         }
 
         String reviews = builder.toString();
         TextView textView = (TextView) findViewById(R.id.reasonField);
-        textView.setText(reviews);
+        textView.setText(Html.fromHtml(reviews));
     }
 }

@@ -7,7 +7,7 @@ import android.widget.Switch;
 
 public class Settings extends AppCompatActivity {
 
-    public static volatile boolean isDetailsEnabled = false;
+    public static volatile boolean isDetailsEnabled = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

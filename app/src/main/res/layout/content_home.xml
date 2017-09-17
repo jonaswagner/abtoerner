@@ -41,10 +41,9 @@
                 android:id="@+id/restaurantName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
                 android:ems="10"
                 android:gravity="center"
-                android:inputType="textPersonName"
+                android:inputType="textMultiLine"
                 android:text="Name"
                 android:textColor="#000000"
                 android:textSize="25sp" />
@@ -98,7 +97,7 @@
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:inputType="textMultiLine"
-                    android:text="\ud83d\ude21 Alter isch zum kotzen hier!!!"
+                    android:text=""
                     android:textColor="#000000"
                     android:textSize="20sp" />
             </LinearLayout>
