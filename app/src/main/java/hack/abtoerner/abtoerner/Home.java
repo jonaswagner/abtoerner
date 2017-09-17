@@ -43,6 +43,11 @@ public class Home extends AppCompatActivity {
 
     public static volatile boolean isWarning = false;
 
+    public static volatile String restName = "";
+    public static volatile float ratingNr = -1;
+    public static volatile String reviewText = "";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -56,6 +61,19 @@ public class Home extends AppCompatActivity {
             setUIVisibilityToNoWarning();
         } else {
             setUIVisibilityToWarning();
+
+            TextView restaurantTextView = (TextView) findViewById(R.id.restaurantName);
+            restaurantTextView.setText(Html.fromHtml("<h3>" + restName + "</h3>"));
+
+            RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
+            ratingBar.setRating((float) ratingNr);
+
+            TextView textView = (TextView) findViewById(R.id.editText4);
+            textView.setText(String.format("%.1f", ratingNr));
+
+            TextView textView2 = (TextView) findViewById(R.id.reasonField);
+            textView2.setText(Html.fromHtml(reviewText));
+
         }
 
         // check location permissions
@@ -141,7 +159,7 @@ public class Home extends AppCompatActivity {
         RatingBar ratingBar = (RatingBar)findViewById(R.id.ratingBar3);
         TextView editText = (TextView) findViewById(R.id.restaurantName);
 
-        editText.setText("Your're safe \ud83d\ude01");
+        editText.setText(Html.fromHtml("<h2> Your're safe \ud83d\ude01 </br> </br> </h2>"));
 
         imageView.setImageResource(R.drawable.ok);
         textView.setAlpha(0f);
@@ -238,8 +256,8 @@ public class Home extends AppCompatActivity {
         }
 
         // Threshhold for raining an alarm
-        double distanceThreshold = 1000;
-        double ratingAlarm = 5;
+        double distanceThreshold = 10;
+        double ratingAlarm = 3;
 
         boolean alarmRaised = false;
 
@@ -256,6 +274,10 @@ public class Home extends AppCompatActivity {
             ratingBar.setRating((float) places.get(i).getRating());
             TextView textView = (TextView) findViewById(R.id.editText4);
             textView.setText(String.format("%.1f", places.get(i).getRating()));
+
+             restName = restaurantName;
+             ratingNr = (float) places.get(i).getRating();
+
 
             isWarning = true;
         } else {
@@ -289,5 +311,7 @@ public class Home extends AppCompatActivity {
         String reviews = builder.toString();
         TextView textView = (TextView) findViewById(R.id.reasonField);
         textView.setText(Html.fromHtml(reviews));
+
+        reviewText = reviews;
     }
 }
