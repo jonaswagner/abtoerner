@@ -49,8 +49,8 @@ public class Warner extends AsyncTask<Location, Void, List<Place>> {
                 longitude,
                 Param.name("opennow").value(true),Param.name("types").value("restaurant"));
 
-        Place places2 = placesClient.getPlaceById("ChIJWf_iMqigmkcRRJAVYGb7Hwo");
-        List<Review> review = places2.getReviews();
+        //Place places2 = placesClient.getPlaceById("ChIJWf_iMqigmkcRRJAVYGb7Hwo");
+       // List<Review> review = places2.getReviews();
 
         return places;
     }

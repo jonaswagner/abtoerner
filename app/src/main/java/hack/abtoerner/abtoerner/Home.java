@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -31,6 +32,9 @@ public class Home extends AppCompatActivity {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String locationProvider = LocationManager.GPS_PROVIDER;
 
+    // ID to store last alarm
+    String lastAlarmID = "";
+
     // Acquire a reference to the system Location Manager
     LocationManager locationManager;
 
@@ -44,15 +48,15 @@ public class Home extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        setUIVisibilityToNoWarning();
 
 
-
-        TextView editText = (TextView) findViewById(R.id.restaurantName);
+/*        TextView editText = (TextView) findViewById(R.id.restaurantName);
         editText.setText("Yolo Swaggins \ud83d\ude01");
-        editText.setEnabled(false);
+        editText.setEnabled(false);*/
 
-        RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
-        ratingBar.setMax(5);
+/*        RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
+        ratingBar.setMax(5);*/
 
         // check location permissions
         if (ContextCompat.checkSelfPermission(this,
@@ -84,7 +88,7 @@ public class Home extends AppCompatActivity {
 
 
 
-        long[] pattern = {0, 1000, 500};
+ /*       long[] pattern = {0, 1000, 500};
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -112,9 +116,9 @@ public class Home extends AppCompatActivity {
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // Builds the notification and issues it.
-//        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+//        mNotifyMgr.notify(mNotificationId, mBuilder.build());*/
 
-        Switch simpleSwitch = (Switch) findViewById(R.id.switch1);
+     /*   Switch simpleSwitch = (Switch) findViewById(R.id.switch1);
         simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -123,7 +127,7 @@ public class Home extends AppCompatActivity {
                     System.out.println("Toggle switch disabled!");
                 }
             }
-        });
+        });*/
 
         // Acquire a reference to the system Location Manager
         locationManager = (LocationManager) this.getSystemService(this.LOCATION_SERVICE);
@@ -172,6 +176,77 @@ public class Home extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    private void setUIVisibilityToNoWarning(){
+
+       ImageView imageView = (ImageView) findViewById(R.id.attention);
+        TextView textView = (TextView) findViewById(R.id.reasonField);
+        TextView textView1 = (TextView) findViewById(R.id.editText4);
+        RatingBar ratingBar = (RatingBar)findViewById(R.id.ratingBar3);
+        TextView editText = (TextView) findViewById(R.id.restaurantName);
+
+        editText.setText("Your're safe \ud83d\ude01");
+
+        imageView.setImageResource(R.drawable.ok);
+        textView.setAlpha(0f);
+        textView1.setAlpha(0f);
+        ratingBar.setAlpha(0f);
+
+    }
+
+    private void setUIVisibilityToWarning(){
+
+       ImageView imageView = (ImageView) findViewById(R.id.attention);
+        TextView textView = (TextView) findViewById(R.id.reasonField);
+        TextView textView1 = (TextView) findViewById(R.id.editText4);
+        RatingBar ratingBar = (RatingBar)findViewById(R.id.ratingBar3);
+
+        imageView.setImageResource(R.drawable.attention);
+        textView.setAlpha(1f);
+        textView1.setAlpha(1f);
+        ratingBar.setAlpha(1f);
+
+    }
+
+
+    private void sendNotification(String id,Place place){
+
+        if(!id.equals(lastAlarmID)) {
+            lastAlarmID= id;
+            long[] pattern = {0, 1000, 500};
+
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.drawable.warnicon)
+                            .setContentTitle("My notification")
+                            .setContentText("Hello World!")
+                            .setVibrate(pattern)
+                            .setChannel("thisIsAChannelID");
+
+            Intent resultIntent = new Intent(this, Home.class);
+            // Because clicking the notification opens a new ("special") activity, there's
+            // no need to create an artificial back stack.
+            PendingIntent resultPendingIntent =
+                    PendingIntent.getActivity(
+                            this,
+                            0,
+                            resultIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+
+            mBuilder.setContentIntent(resultPendingIntent);
+
+            int mNotificationId = 003;
+            // Gets an instance of the NotificationManager service
+            NotificationManager mNotifyMgr =
+                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            // Builds the notification and issues it.
+            mNotifyMgr.notify(mNotificationId, mBuilder.build());
+        }
+
+    }
+
+
     public void updateWithWarning(List<Place> places) {
         // Check if one place with a bad rating
         // is in proximity. If so then raise an
@@ -208,20 +283,32 @@ public class Home extends AppCompatActivity {
         }
 
         // Threshhold for raining an alarm
-        double distanceThreshold = 100;
+        double distanceThreshold = 1000;
         double ratingAlarm = 5;
 
-        for(int i = 0;i<nrOfLocations;i++) {
+        boolean alarmRaised = false;
+
+        int i = 0;
             if((distanceArray[i]<distanceThreshold) && (places.get(i).getRating()<ratingAlarm)){
                 // Raise alarm
+                alarmRaised = true;
+                sendNotification(places.get(i).getPlaceId(),places.get(i));
                 // update name and rating in the UI
                 String restaurantName = places.get(i).getName();
                 TextView restaurantTextView = (TextView) findViewById(R.id.restaurantName);
                 restaurantTextView.setText(restaurantName);
                 RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar3);
                 ratingBar.setRating((float) places.get(i).getRating());
-            }
+                TextView textView = (TextView) findViewById(R.id.editText4);
+                textView.setText(String.format("%.1f", places.get(i).getRating()));
 
+
+        }
+
+        if(alarmRaised){
+            setUIVisibilityToWarning();
+        }else {
+            setUIVisibilityToNoWarning();
         }
 
         new TextAnalytics(this).execute(places.get(0).getPlaceId());
