@@ -8,23 +8,38 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.session.MediaSession;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.RatingBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import se.walkercrou.places.Place;
+
+//2.9 rating
+//https://www.google.ch/maps/place/Circle+Motor+Lodge/@40.495243,-74.2988127,17z/data=!4m12!1m4!2m3!1srestaurant!5m1!4e1!3m6!1s0x89c3ca3ba6a393f5:0xa613768d37bd16db!8m2!3d40.495243!4d-74.296771!9m1!1b1
+
+
 
 public class Home extends AppCompatActivity {
 
@@ -228,8 +243,19 @@ public class Home extends AppCompatActivity {
     }
 
     public void updateWithBuzzWords(List<String> buzzWords) {
+
+        StringBuilder builder = new StringBuilder();
+
+        int i = 1;
         for (String element : buzzWords) {
-            System.out.println(element);
+            builder.append("Review " + i + ": \t");
+            builder.append(element);
+            builder.append(" " + "\n");
+            i++;
         }
+
+        String reviews = builder.toString();
+        
+
     }
 }
