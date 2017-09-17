@@ -41,14 +41,22 @@ public class Home extends AppCompatActivity {
     // Define a listener that responds to location updates
     LocationListener locationListener;
 
+    public static volatile boolean isWarning = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        setUIVisibilityToNoWarning();
+        if (!isWarning) {
+            setUIVisibilityToNoWarning();
+        } else {
+            setUIVisibilityToWarning();
+        }
 
         // check location permissions
         if (ContextCompat.checkSelfPermission(this,
@@ -249,7 +257,9 @@ public class Home extends AppCompatActivity {
             TextView textView = (TextView) findViewById(R.id.editText4);
             textView.setText(String.format("%.1f", places.get(i).getRating()));
 
-
+            isWarning = true;
+        } else {
+            isWarning = false;
         }
 
         if(alarmRaised){
